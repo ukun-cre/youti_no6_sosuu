@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>キラキラ素数バルーン</title>
+    <title>キラキラ素数バルーン Pro</title>
     <style>
         :root {
             --primary-bg: #e0f7fa;
@@ -21,9 +21,9 @@
             font-family: var(--font-main);
             background-color: var(--primary-bg);
             user-select: none;
+            touch-action: manipulation;
         }
 
-        /* スクリーン管理 */
         .screen {
             position: absolute;
             top: 0;
@@ -39,8 +39,8 @@
 
         .active { display: flex; }
 
-        /* メニュー・ボタン */
-        h1 { font-size: 3rem; color: #00796b; text-shadow: 2px 2px #fff; }
+        h1 { font-size: 3rem; color: #00796b; text-shadow: 2px 2px #fff; margin-bottom: 20px; }
+        
         .btn {
             background-color: #ff4081;
             color: white;
@@ -55,65 +55,70 @@
         }
         .btn:active { transform: translateY(4px); box-shadow: none; }
         .btn-sub { background-color: #4caf50; box-shadow: 0 4px #388e3c; }
+        .btn-quit { 
+            position: absolute; 
+            top: 10px; 
+            left: 10px; 
+            padding: 10px 20px; 
+            font-size: 1rem; 
+            z-index: 300;
+            background-color: #9e9e9e;
+            box-shadow: 0 3px #616161;
+        }
 
-        /* 設定項目 */
-        .setting-item { margin: 15px; font-size: 1.2rem; background: rgba(255,255,255,0.8); padding: 10px 20px; border-radius: 20px; }
+        .setting-item { margin: 10px; font-size: 1.2rem; background: rgba(255,255,255,0.8); padding: 10px 20px; border-radius: 20px; width: 300px; display: flex; justify-content: space-between; }
 
-        /* ゲーム画面 */
-        #game-area { width: 100%; height: 100%; position: relative; overflow: hidden; }
-        .hud { position: absolute; top: 10px; width: 100%; display: flex; justify-content: space-around; font-size: 1.5rem; color: #333; z-index: 100; pointer-events: none; }
+        #game-area { width: 100%; height: 100%; position: relative; overflow: hidden; cursor: crosshair; }
+        
+        .hud { 
+            position: absolute; 
+            top: 10px; 
+            width: 100%; 
+            display: flex; 
+            justify-content: center; 
+            gap: 30px;
+            font-size: 1.4rem; 
+            color: #004d40; 
+            z-index: 100; 
+            pointer-events: none;
+            font-weight: bold;
+            background: rgba(255,255,255,0.3);
+            padding: 10px 0;
+        }
 
-        /* 風船 */
         .balloon {
             position: absolute;
-            width: 80px;
-            height: 100px;
-            background-color: var(--balloon-red);
+            width: 90px;
+            height: 110px;
             border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             font-weight: bold;
             color: white;
             cursor: pointer;
-            animation: float 5s infinite ease-in-out;
+            animation: float 4s infinite ease-in-out;
+            transition: transform 0.2s, opacity 0.2s;
+            box-shadow: inset -5px -5px rgba(0,0,0,0.1);
         }
         .balloon::after {
-            content: '';
-            position: absolute;
-            bottom: -20px;
-            left: 40px;
-            width: 2px;
-            height: 30px;
-            background: rgba(0,0,0,0.2);
+            content: ''; position: absolute; bottom: -20px; left: 45px;
+            width: 2px; height: 30px; background: rgba(0,0,0,0.2);
         }
 
         @keyframes float {
             0%, 100% { transform: translateY(0) rotate(-2deg); }
-            50% { transform: translateY(-20px) rotate(2deg); }
+            50% { transform: translateY(-25px) rotate(2deg); }
         }
 
-        /* 花火用キャンバス */
-        #fireworks {
-            position: absolute;
-            top: 0;
-            left: 0;
-            pointer-events: none;
-            z-index: 200;
-        }
+        .pop { transform: scale(1.5); opacity: 0; pointer-events: none; }
 
-        /* 結果リスト */
-        .result-list { 
-            background: white; 
-            padding: 20px; 
-            border-radius: 20px; 
-            max-height: 50vh; 
-            overflow-y: auto; 
-            width: 80%;
-            margin-bottom: 20px;
-        }
-        .result-item { border-bottom: 1px solid #eee; padding: 5px; font-size: 1.2rem; }
+        #fireworks { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 200; }
+
+        .result-list { background: white; padding: 20px; border-radius: 20px; max-height: 50vh; overflow-y: auto; width: 85%; margin: 20px 0; border: 4px solid #80deea; }
+        .result-item { border-bottom: 1px solid #eee; padding: 8px; font-size: 1.2rem; display: flex; align-items: center; gap: 10px; }
+        .tag-prime { background: #e1f5fe; color: #0288d1; padding: 2px 8px; border-radius: 5px; font-size: 0.8rem; }
     </style>
 </head>
 <body>
@@ -121,41 +126,23 @@
     <div id="screen-menu" class="screen active">
         <h1>🎈 素数バルーン 🎈</h1>
         <button class="btn" onclick="startGame()">スタート！</button>
-        <button class="btn btn-sub" onclick="showScreen('screen-settings')">設定</button>
-        <div id="high-score-display" style="margin-top:20px; font-size: 1.2rem;"></div>
+        <button class="btn btn-sub" onclick="showScreen('screen-settings')">せってい</button>
+        <div id="high-score-display" style="margin-top:20px; font-size: 1.3rem; color: #004d40;"></div>
     </div>
 
     <div id="screen-settings" class="screen">
         <h2>せってい</h2>
-        <div class="setting-item">
-            モード: 
-            <select id="setting-mode">
-                <option value="prime">素数をさがせ！</option>
-                <option value="composite">素数以外（合成数）をさがせ！</option>
-            </select>
-        </div>
-        <div class="setting-item">
-            むずかしさ: 
-            <select id="setting-range">
-                <option value="30">30 まで</option>
-                <option value="60">60 まで</option>
-                <option value="100">100 まで</option>
-            </select>
-        </div>
-        <div class="setting-item">
-            もんだい数: 
-            <select id="setting-count">
-                <option value="5">5問</option>
-                <option value="7">7問</option>
-                <option value="10" selected>10問</option>
-            </select>
-        </div>
-        <button class="btn btn-sub" onclick="showScreen('screen-menu')">もどる</button>
+        <div class="setting-item">モード: <select id="setting-mode"><option value="prime">素数をさがせ！</option><option value="composite">素数以外をさがせ！</option></select></div>
+        <div class="setting-item">むずかしさ: <select id="setting-range"><option value="30">30 まで</option><option value="60">60 まで</option><option value="100" selected>100 まで</option></select></div>
+        <div class="setting-item">もんだい数: <select id="setting-count"><option value="5">5問</option><option value="7">7問</option><option value="10" selected>10問</option></select></div>
+        <button class="btn btn-sub" onclick="showScreen('screen-menu')">OK</button>
     </div>
 
     <div id="screen-game" class="screen">
+        <button class="btn btn-quit" onclick="showScreen('screen-menu')">やめる</button>
         <div class="hud">
-            <div>のこり: <span id="hud-remaining">0</span></div>
+            <div>のこり: <span id="hud-remaining">0</span>問</div>
+            <div>あと <span id="hud-targets" style="color: #d32f2f; font-size: 1.8rem;">3</span> つ！</div>
             <div>スコア: <span id="hud-score">0</span></div>
             <div>ミス: <span id="hud-miss">0</span>/2</div>
         </div>
@@ -164,7 +151,7 @@
 
     <div id="screen-result" class="screen">
         <h2 id="result-title">おわり！</h2>
-        <div style="font-size: 2rem; color: #f44336;">スコア: <span id="final-score">0</span></div>
+        <div style="font-size: 2.5rem; color: #ff4081; font-weight: bold;">スコア: <span id="final-score">0</span></div>
         <div class="result-list" id="result-details"></div>
         <button class="btn" onclick="showScreen('screen-menu')">タイトルへ</button>
     </div>
@@ -173,24 +160,18 @@
 
     <script>
         let config = { mode: 'prime', range: 100, totalQ: 10 };
-        let state = { currentQ: 0, score: 0, mistakes: 0, startTime: 0, history: [] };
-        const colors = ['#ff5252', '#448aff', '#69f0ae', '#ffd740', '#e040fb', '#ffab40'];
+        let state = { currentQ: 0, score: 0, mistakes: 0, targetsFound: 0, startTime: 0, history: [] };
+        const colors = ['#ff5252', '#448aff', '#69f0ae', '#ffd740', '#e040fb', '#ffab40', '#00bcd4'];
 
-        // 素数判定
         function isPrime(n) {
             if (n < 2) return false;
-            for (let i = 2; i <= Math.sqrt(n); i++) {
-                if (n % i === 0) return false;
-            }
+            for (let i = 2; i <= Math.sqrt(n); i++) if (n % i === 0) return false;
             return true;
         }
 
-        // 因数分解の取得（教育用）
         function getExplanation(n) {
-            if (isPrime(n)) return "は 素数！";
-            for (let i = 2; i < n; i++) {
-                if (n % i === 0) return ` = ${i} × ${n / i}`;
-            }
+            if (isPrime(n)) return "は 素数（われない数）";
+            for (let i = 2; i < n; i++) if (n % i === 0) return ` = ${i} × ${n / i}`;
             return "";
         }
 
@@ -210,14 +191,14 @@
             config.range = parseInt(document.getElementById('setting-range').value);
             config.totalQ = parseInt(document.getElementById('setting-count').value);
             
-            state = { currentQ: config.totalQ, score: 0, mistakes: 0, startTime: Date.now(), history: [] };
-            updateHUD();
+            state = { currentQ: config.totalQ, score: 0, mistakes: 0, targetsFound: 0, startTime: Date.now(), history: [] };
             showScreen('screen-game');
             nextQuestion();
         }
 
         function updateHUD() {
             document.getElementById('hud-remaining').innerText = state.currentQ;
+            document.getElementById('hud-targets').innerText = 3 - state.targetsFound;
             document.getElementById('hud-score').innerText = state.score;
             document.getElementById('hud-miss').innerText = state.mistakes;
         }
@@ -228,70 +209,78 @@
                 return;
             }
             state.mistakes = 0;
+            state.targetsFound = 0;
+            state.roundStartTime = Date.now();
             updateHUD();
             spawnBalloons();
-            state.questionStartTime = Date.now();
         }
 
         function spawnBalloons() {
             const area = document.getElementById('game-area');
             area.innerHTML = '';
             
-            // 少なくとも1つは正解を含める
-            let nums = [];
-            while(nums.length < 10) {
-                let r = Math.floor(Math.random() * (config.range - 1)) + 2;
-                if(!nums.includes(r)) nums.push(r);
-            }
-            
-            // 正解が含まれているかチェックし、なければ無理やり入れる
-            const hasTarget = nums.some(n => config.mode === 'prime' ? isPrime(n) : !isPrime(n));
-            if(!hasTarget) {
-                let target;
-                if(config.mode === 'prime') {
-                    const primes = [2,3,5,7,11,13,17,19,23,29].filter(p => p <= config.range);
-                    target = primes[Math.floor(Math.random() * primes.length)];
-                } else {
-                    target = 4;
-                }
-                nums[0] = target;
+            let allNums = Array.from({length: config.range - 1}, (_, i) => i + 2);
+            let primes = allNums.filter(n => isPrime(n));
+            let composites = allNums.filter(n => !isPrime(n));
+
+            let targets = [];
+            let decoys = [];
+
+            if (config.mode === 'prime') {
+                targets = shuffle(primes).slice(0, 3);
+                decoys = shuffle(composites).slice(0, 7);
+            } else {
+                targets = shuffle(composites).slice(0, 3);
+                decoys = shuffle(primes).slice(0, 7);
             }
 
-            nums.forEach(n => {
+            let displaySet = shuffle([...targets, ...decoys]);
+
+            displaySet.forEach((n, index) => {
                 const b = document.createElement('div');
                 b.className = 'balloon';
                 b.innerText = n;
-                b.style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
-                b.style.left = Math.random() * 80 + 5 + '%';
-                b.style.top = Math.random() * 60 + 15 + '%';
-                b.style.animationDelay = Math.random() * 2 + 's';
+                b.style.backgroundColor = colors[index % colors.length];
+                b.style.left = (5 + (index % 5) * 18) + (Math.random() * 5) + '%';
+                b.style.top = (index < 5 ? 15 : 55) + (Math.random() * 10) + '%';
+                b.style.animationDelay = (Math.random() * 2) + 's';
                 
                 b.onclick = () => handleTap(n, b);
                 area.appendChild(b);
             });
         }
 
+        function shuffle(array) {
+            return array.sort(() => Math.random() - 0.5);
+        }
+
         function handleTap(n, element) {
-            const isCorrect = config.mode === 'prime' ? isPrime(n) : !isPrime(n);
+            const isTarget = config.mode === 'prime' ? isPrime(n) : !isPrime(n);
             
-            if (isCorrect) {
-                // 正解
-                const timeTaken = (Date.now() - state.questionStartTime) / 1000;
-                const points = Math.max(10, Math.floor(100 - timeTaken * 10));
-                state.score += points;
-                state.history.push({n, correct: true});
-                launchFireworks();
-                state.currentQ--;
-                nextQuestion();
+            if (isTarget) {
+                element.classList.add('pop');
+                state.targetsFound++;
+                const timeTaken = (Date.now() - state.roundStartTime) / 1000;
+                state.score += Math.max(10, Math.floor(50 - timeTaken));
+                
+                // 履歴に追加（重複を避ける）
+                if (!state.history.find(h => h.n === n)) state.history.push({n, correct: true});
+
+                if (state.targetsFound >= 3) {
+                    launchFireworks();
+                    state.currentQ--;
+                    setTimeout(nextQuestion, 600);
+                }
             } else {
-                // 不正解
                 state.mistakes++;
                 element.style.opacity = '0.3';
+                element.style.transform = 'scale(0.8)';
                 element.onclick = null;
+                state.history.push({n, correct: false});
+
                 if (state.mistakes >= 2) {
-                    state.history.push({n, correct: false});
                     state.currentQ--;
-                    nextQuestion();
+                    setTimeout(nextQuestion, 600);
                 }
             }
             updateHUD();
@@ -302,44 +291,43 @@
             document.getElementById('final-score').innerText = state.score;
             
             const list = document.getElementById('result-details');
-            list.innerHTML = '<h3>でてきた数字のべんきょう</h3>';
-            state.history.forEach(item => {
+            list.innerHTML = '<h3>今回のふりかえり</h3>';
+            
+            // 重複を除去して表示
+            const uniqueHistory = Array.from(new Set(state.history.map(a => a.n)))
+                .map(n => state.history.find(a => a.n === n));
+
+            uniqueHistory.forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'result-item';
-                const status = item.correct ? "✅" : "❌";
-                div.innerHTML = `${status} <strong>${item.n}</strong> ${getExplanation(item.n)}`;
+                const status = isPrime(item.n) === (config.mode === 'prime') ? "✅" : "❌";
+                div.innerHTML = `<span>${status}</span> <strong>${item.n}</strong> <span>${getExplanation(item.n)}</span>`;
                 list.appendChild(div);
             });
 
             const high = localStorage.getItem('primeHighScore') || 0;
             if (state.score > high) {
                 localStorage.setItem('primeHighScore', state.score);
-                document.getElementById('result-title').innerText = "🏆 最高きろく！ 🏆";
-            } else {
-                document.getElementById('result-title').innerText = "おわり！";
+                document.getElementById('result-title').innerText = "🏆 さいこうきろく！ 🏆";
             }
         }
 
-        // --- 花火エフェクト (Canvas) ---
+        // --- 花火エフェクト ---
         const canvas = document.getElementById('fireworks');
         const ctx = canvas.getContext('2d');
+        let particles = [];
         function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
         window.addEventListener('resize', resize);
         resize();
 
-        let particles = [];
         function launchFireworks() {
-            const x = Math.random() * canvas.width;
-            const y = Math.random() * canvas.height;
-            const color = colors[Math.floor(Math.random()*colors.length)];
-            for(let i=0; i<30; i++) {
-                particles.push({
-                    x, y,
-                    vx: Math.cos(i) * Math.random() * 5,
-                    vy: Math.sin(i) * Math.random() * 5,
-                    life: 1.0,
-                    color
-                });
+            for(let i=0; i<3; i++) {
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height * 0.5;
+                const color = colors[Math.floor(Math.random()*colors.length)];
+                for(let j=0; j<30; j++) {
+                    particles.push({ x, y, vx: Math.cos(j) * Math.random() * 8, vy: Math.sin(j) * Math.random() * 8, life: 1.0, color });
+                }
             }
         }
 
@@ -347,16 +335,14 @@
             ctx.clearRect(0,0,canvas.width, canvas.height);
             particles = particles.filter(p => p.life > 0);
             particles.forEach(p => {
-                p.x += p.vx; p.y += p.vy; p.vy += 0.05; p.life -= 0.02;
-                ctx.fillStyle = p.color;
-                ctx.globalAlpha = p.life;
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, 3, 0, Math.PI*2);
-                ctx.fill();
+                p.x += p.vx; p.y += p.vy; p.vy += 0.1; p.life -= 0.02;
+                ctx.fillStyle = p.color; ctx.globalAlpha = p.life;
+                ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI*2); ctx.fill();
             });
             requestAnimationFrame(updateParticles);
         }
         updateParticles();
+        updateHighScoreDisplay();
     </script>
 </body>
 </html>
